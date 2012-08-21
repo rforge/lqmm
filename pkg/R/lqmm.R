@@ -313,7 +313,7 @@ list(theta = fit$theta, scale = fit$scale, logLik = fit$logLik, opt = OPTIMIZATI
 
 }
 
-"lqmControl" <- function(loop_tol_ll = 1e-6, loop_tol_theta = 1e-6, check_theta = FALSE, loop_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, loop_max_iter = 500, verbose = FALSE)
+"lqmControl" <- function(loop_tol_ll = 1e-5, loop_tol_theta = 1e-5, check_theta = FALSE, loop_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, loop_max_iter = 500, verbose = FALSE)
 {
 if(beta > 1 || beta < 0) stop("Beta must be a decreasing factor in (0,1)")
 if(gamma < 1) stop("Beta must be a nondecreasing factor >= 1")
@@ -462,7 +462,7 @@ return(ans)
 
 }
 
-"boot.lqm" <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = TRUE){
+"boot.lqm" <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
 
 set.seed(seed)
 iota <- object$iota
@@ -1052,7 +1052,7 @@ list(theta = theta_1, scale = sigma_1, logLik = -ans$opt_val, opt = OPTIMIZATION
 
 ##
 
-lqmmControl <- function(method = "df", LP_tol_ll = 1e-6, LP_tol_theta = 1e-6, check_theta = FALSE, LP_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, LP_max_iter = 500, UP_tol = 1e-5, UP_max_iter = 10, startQR = FALSE, verbose = FALSE){
+lqmmControl <- function(method = "df", LP_tol_ll = 1e-5, LP_tol_theta = 1e-5, check_theta = FALSE, LP_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, LP_max_iter = 500, UP_tol = 1e-4, UP_max_iter = 20, startQR = FALSE, verbose = FALSE){
 
 if(beta > 1 || beta < 0) stop("Beta must be a decreasing factor in (0,1)")
 if(gamma < 1) stop("Beta must be a nondecreasing factor >= 1")
@@ -1669,7 +1669,7 @@ cat("AIC:\n")
 }
 
 
-boot.lqmm <- function(object, R = 50, seed = round(runif(1, 1, 10000))){
+boot.lqmm <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
 
 set.seed(seed)
 iota <- object$iota
@@ -1679,9 +1679,10 @@ ngroups <- object$ngroups
 group_all <- object$group
 group_unique <- unique(group_all)
 obsS <- replicate(R, sample(group_unique, replace = TRUE))
+dim_theta_z <- object$dim_theta_z
 
-npars <- object$dim_theta[1] + object$dim_theta_z + 1
-dimn <- c(object$nn, paste("reStruct", 1:object$dim_theta_z, sep=""), "scale")
+npars <- object$dim_theta[1] + dim_theta_z + 1
+dimn <- c(object$nn, paste("reStruct", 1:dim_theta_z, sep=""), "scale")
 
 control <- object$control
 control$verbose <- FALSE
@@ -1691,7 +1692,7 @@ FIT_ARGS <- list(x = as.matrix(object$mmf), y = object$y, z = as.matrix(object$m
 
 if(nq == 1){
 
-  FIT_ARGS$theta_0 <- object$theta;  
+  FIT_ARGS$theta_0 <- object$theta;
   FIT_ARGS$sigma_0 <- object$scale;
   FIT_ARGS$iota <- object$iota;
 
@@ -1703,12 +1704,17 @@ if(nq == 1){
     sel_unique <- group_unique%in%names(group_freq);
     w <- rep(0, ngroups); w[sel_unique] <- group_freq;
     FIT_ARGS$weights <- w;
-
-	#lmfit <- lm.wfit(x = as.matrix(object$mmf), y = object$y, w = rep(w, table(group_all)))
-	#theta_x <- lmfit$coefficients
-	#FIT_ARGS$theta_0 <- c(theta_x, rep(1,object$dim_theta_z))
-	#FIT_ARGS$sigma_0 <- invvarAL(mean(lmfit$residuals^2), 0.5)
 	
+	if(!startQR){
+		lmfit <- lm.wfit(x = as.matrix(object$mmf), y = object$y, w = rep(w, table(group_all)))
+		theta_x <- lmfit$coefficients
+		theta_z <- if (object$type == "normal")
+			rep(1, dim_theta_z)
+				else rep(invvarAL(1, 0.5), dim_theta_z)
+		FIT_ARGS$theta_0 <- c(theta_x, theta_z)
+		FIT_ARGS$sigma_0 <- invvarAL(mean(lmfit$residuals^2), 0.5)
+	}
+
     test <- "try-error";
 
     while(test=="try-error"){
@@ -1721,18 +1727,26 @@ if(nq == 1){
 } else {
 
   bootmat <- array(NA, dim = c(R, npars, nq), dimnames = list(NULL, dimn, paste("iota = ", format(iota, digits = 4), sep ="")));
+
   for(i in 1:R){
     group_freq <- table(obsS[,i]);
     sel_unique <- group_unique%in%names(group_freq);
     w <- rep(0, ngroups); w[sel_unique] <- group_freq;
     FIT_ARGS$weights <- w;
     for (j in 1:nq){
-		#lmfit <- lm.wfit(x = as.matrix(object$mmf), y = object$y, w = rep(w, table(group_all)))
-		#theta_x <- lmfit$coefficients
-		#FIT_ARGS$theta_0 <- c(theta_x, rep(1,object$dim_theta_z))
-		#FIT_ARGS$sigma_0 <- invvarAL(mean(lmfit$residuals^2), 0.5)
-		FIT_ARGS$theta_0 <- object[[j]]$theta;  
-		FIT_ARGS$sigma_0 <- object[[j]]$scale;
+		
+		if(startQR){
+			FIT_ARGS$theta_0 <- object[[j]]$theta;  
+			FIT_ARGS$sigma_0 <- object[[j]]$scale
+		} else {
+			lmfit <- lm.wfit(x = as.matrix(object$mmf), y = object$y, w = rep(w, table(group_all)))
+			theta_x <- lmfit$coefficients
+			theta_z <- if(object$type == "normal")
+				rep(1, dim_theta_z) else rep(invvarAL(1, 0.5), dim_theta_z)
+			FIT_ARGS$theta_0 <- c(theta_x, theta_z)
+			FIT_ARGS$sigma_0 <- invvarAL(mean(lmfit$residuals^2), 0.5)
+		}
+
 		FIT_ARGS$iota <- object$iota[j];
 
 		if(control$method == "gs") fit <- try(do.call(lqmm.fit.gs, FIT_ARGS));
