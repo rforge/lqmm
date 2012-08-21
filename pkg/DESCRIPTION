@@ -1,8 +1,8 @@
 Package: lqmm
 Type: Package
 Title: Linear Quantile Mixed Models
-Version: 1.01
-Date: 2012-05-18
+Version: 1.02
+Date: 2012-08-15
 Author: Marco Geraci
 Maintainer: Marco Geraci <m.geraci@ucl.ac.uk>
 Depends: R (>= 2.12.0), SparseGrid
