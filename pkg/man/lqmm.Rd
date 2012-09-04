@@ -62,7 +62,7 @@ an optional vector of weights to be used in the fitting process of the same leng
   not yet implemented.
 }
 
-  \item{forceRule}{logical flag. If \code{TRUE} and \code{rule = 1} the quadrature rule if forced to be equal to 1. This option is used to bypass a control check that otherwise automatically sets \code{rule = 2} (sparse grid) in case \code{nK} > 7 and the number of random effects > 2 (in which case the algorithm slows down notably).
+  \item{forceRule}{logical flag. If \code{TRUE} and \code{rule = 1} the quadrature rule if forced to be equal to 1. This option is used to bypass a control check that otherwise automatically sets \code{rule = 2} (sparse grid) in case \code{nK} > 11 and the number of random effects > 4 (in which case the algorithm slows down notably).
 }
 
  \item{fit}{

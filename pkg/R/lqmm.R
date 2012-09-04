@@ -1153,7 +1153,7 @@ dim_theta_z <- theta.z.dim(type = cov_name, n = dim_theta[2])
 ## Check if product rule quadrature is computationally heavy
 
 if(rule == 1){
-	if(dim_theta[2] > 2 && nK > 7) {
+	if(dim_theta[2] > 4 && nK > 11) {
 	warning(paste("For current value of \"nK\" the total number of quadrature knots is ", nK^dim_theta[2], sep = ""))
 		if((!forceRule)) {
 			warning("\"rule\" set to 4 (see details in '?lqmm'). \nSet argument \"forceRule\" to TRUE to bypass this check (not recommended).")
@@ -1874,7 +1874,7 @@ return(ans)
 
 dal <- function(x, mu = 0, sigma = 1, p = 0.5, log = FALSE) {
 
-ind <- ifelse(x <= mu, 1, 0)
+ind <- ifelse(x < mu, 1, 0)
 
 val <- p*(1-p)/sigma * exp(-(x - mu)/sigma * (p- ind))
 
@@ -1884,7 +1884,7 @@ if(log) log(val) else val
 
 pal <- function(x, mu = 0, sigma = 1, p = 0.5) {
 
-ifelse(x <= mu, p * exp( (1 - p) / sigma * (x - mu)),
+ifelse(x < mu, p * exp( (1 - p) / sigma * (x - mu)),
 
 1 - (1 -p) *exp(- p / sigma * (x - mu)))
 
@@ -1898,7 +1898,7 @@ x1 <- mu + sigma/(1-p) * log(u/p)
 
 x2 <- mu - sigma/p * log ((1-u) / (1-p))
 
-ifelse(x1 <= mu, x1, x2)
+ifelse(x1 < mu, x1, x2)
 
 }
 
@@ -1906,7 +1906,7 @@ qal <- function(x, mu = 0, sigma = 1, p = 0.5) {
 
 if(x > 1 | x < 0) stop("p must be in [0,1]")
 
-ifelse(x <= p, mu + (sigma/(1-p))*log(x/p),
+ifelse(x < p, mu + (sigma/(1-p))*log(x/p),
 
 mu - (sigma/p)*log((1-x)/(1-p)))
 
