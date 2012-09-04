@@ -1,6 +1,8 @@
 \name{AIC.lqmm}
 \alias{AIC.lqmm}
 
+
+
 \title{
 Akaike Information Criterion for LQMM}
 
