@@ -823,7 +823,7 @@ return(QUAD)
 
 "quad" <- function(q, k, type = c("normal","robust"), rule = 1){
 
-if(!(rule %in% 1:4)) {warning(paste("Rule ", rule, " not recognised. Rule 4 used (see details in '?lqmm'", sep = "")); rule <- 4}
+if(!(rule %in% 1:4)) {warning(paste("Rule ", rule, " not recognised. Rule 1 used (see details in '?lqmm'", sep = "")); rule <- 1}
 
 if(rule == 1){
 
@@ -1073,7 +1073,7 @@ if(code == -2) warning(paste(txt, " did not start in: ", fn, ". Check max number
 
 }
 
-"lqmm" <- function(fixed, random, group, covariance = "pdDiag", iota = 0.5, nK = 11, type = "normal", rule = 4, data = sys.frame(sys.parent()), subset, weights, na.action = na.fail, control = list(), contrasts = NULL, forceRule = FALSE, fit = TRUE)
+"lqmm" <- function(fixed, random, group, covariance = "pdDiag", iota = 0.5, nK = 7, type = "normal", rule = 1, data = sys.frame(sys.parent()), subset, weights, na.action = na.fail, control = list(), contrasts = NULL, fit = TRUE)
 {
  
 Call <- match.call()
@@ -1155,11 +1155,6 @@ dim_theta_z <- theta.z.dim(type = cov_name, n = dim_theta[2])
 if(rule == 1){
 	if(dim_theta[2] > 4 && nK > 11) {
 	warning(paste("For current value of \"nK\" the total number of quadrature knots is ", nK^dim_theta[2], sep = ""))
-		if((!forceRule)) {
-			warning("\"rule\" set to 4 (see details in '?lqmm'). \nSet argument \"forceRule\" to TRUE to bypass this check (not recommended).")
-			ruleold <- rule
-			rule <- 4
-		}
 	}
 }
 
@@ -1670,6 +1665,8 @@ cat("AIC:\n")
 
 
 boot.lqmm <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
+
+if(startQR) warning("Standard errors may be underestimated when 'startQR = TRUE'")
 
 set.seed(seed)
 iota <- object$iota
