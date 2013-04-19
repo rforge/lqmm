@@ -1052,7 +1052,7 @@ list(theta = theta_1, scale = sigma_1, logLik = -ans$opt_val, opt = OPTIMIZATION
 
 ##
 
-lqmmControl <- function(method = "df", LP_tol_ll = 1e-5, LP_tol_theta = 1e-5, check_theta = FALSE, LP_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, LP_max_iter = 500, UP_tol = 1e-4, UP_max_iter = 20, startQR = FALSE, verbose = FALSE){
+lqmmControl <- function(method = "gs", LP_tol_ll = 1e-5, LP_tol_theta = 1e-5, check_theta = FALSE, LP_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, LP_max_iter = 500, UP_tol = 1e-4, UP_max_iter = 20, startQR = FALSE, verbose = FALSE){
 
 if(beta > 1 || beta < 0) stop("Beta must be a decreasing factor in (0,1)")
 if(gamma < 1) stop("Beta must be a nondecreasing factor >= 1")
@@ -1270,7 +1270,7 @@ class(fit) <- "lqmm"
 fit
 }
 
-#unused from version 1.1
+#unused from version 1.01
 #cov.sel <- function(type){
 #	val <- switch(type,
 #		"pdIdent" = 0,
@@ -1290,7 +1290,7 @@ theta.z.dim <- function(type, n){
 }
 
 
-covHandling <- function(theta, n, cov_name, quad_type, iota){
+covHandling <- function(theta, n, cov_name, quad_type){
 
 	if(cov_name %in% c("pdIdent","pdDiag")){
 		if(quad_type == "robust"){
@@ -1299,7 +1299,7 @@ covHandling <- function(theta, n, cov_name, quad_type, iota){
 				warning("Not positive-definite variance-covariance of random effects.");
 				sigma[sigma < 0] <- .Machine$double.eps
 			}
-			sigma <- varAL(sigma, iota);
+			sigma <- varAL(sigma, 0.5);
 		} else {
 			sigma <- theta;
 			if(any(sigma < 0)){
@@ -1353,7 +1353,7 @@ type <- object$type
 mm <- object$mm
 
 	if(nq == 1){
-		sigma <- covHandling(theta = theta_z, n = q, cov_name = cov_name, quad_type = type, iota = iota);
+		sigma <- covHandling(theta = theta_z, n = q, cov_name = cov_name, quad_type = type);
 		if(cov_name == "pdIdent") {sigma <- rep(sigma, q); names(sigma) <- mm}
 		if(cov_name == "pdDiag") {names(sigma) <- mm}
 		if(cov_name == "pdCompSymm") {rownames(sigma) <- colnames(sigma) <- mm}
@@ -1362,7 +1362,7 @@ mm <- object$mm
 		sigma <- vector("list", nq);
 		names(sigma) <- format(iota, digits = 4);
 		for(i in 1:nq){
-			sigma[[i]] <- covHandling(theta = theta_z[,i], n = q, cov_name = cov_name, quad_type = type, iota = iota[i])
+			sigma[[i]] <- covHandling(theta = theta_z[,i], n = q, cov_name = cov_name, quad_type = type)
 			if(cov_name == "pdIdent") {sigma[[i]] <- rep(sigma[[i]], q); names(sigma[[i]]) <- mm}
 			if(cov_name == "pdDiag") {names(sigma[[i]]) <- mm}
 			if(cov_name == "pdCompSymm") {rownames(sigma[[i]]) <- colnames(sigma[[i]]) <- mm}

@@ -68,13 +68,17 @@ An object of class \code{lqm} is a list containing the following components:
 }
 
 \references{
-Bottai M, Orsini N and Geraci M (2011). A Gradient Search Maximization Algorithm for Laplace Likelihood. Unpublished manuscript.
+Bottai M, Orsini N and Geraci M (2013). A Gradient Search Maximization Algorithm for Laplace Likelihood. Unpublished manuscript.
 
 Koenker R and Bassett G (1978). Regression Quantiles. Econometrica 46(1), 33--50.
 }
 
 \author{
 Marco Geraci}
+
+\note{
+Updates/FAQ/news are published here \url{http://marcogeraci.wordpress.com/}. New versions are usually published here \url{https://r-forge.r-project.org/R/?group_id=1396} before going on CRAN.
+}
 
 \seealso{
 \code{\link{summary.lqm}}
