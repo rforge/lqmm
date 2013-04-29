@@ -63,6 +63,7 @@ An object of class "list" containing the following components:
 
 \item{theta}{a vector of coefficients, including the "raw" variance--covariance parameters (see \code{\link{cov.lqmm}}).}
 \item{scale}{the scale parameter.}
+\item{gradient}{the gradient.}
 \item{logLik}{the log--likelihood.}
 \item{opt}{number of iterations when the estimation algorithm stopped for lower (theta) and upper (scale) loop.}.
 }

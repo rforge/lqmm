@@ -1,18 +1,21 @@
 citHeader("To cite package 'lqmm' in publications use:")
 
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+vers <- paste("R package version", meta$Version)
+
 citEntry(
   entry = "Manual",
   title ="lqmm: {L}inear quantile mixed models",
   author = personList(as.person("M. Geraci")),
-  year = "2012",
-  note = "R package version 1.03",
+  year = year,
+  note = vers,
   url = "http://CRAN.R-project.org/package=lqmm",
-  textVersion  = paste(
-  "Geraci M (2013).",
-  "lqmm: Linear quantile mixed models.",
-  "R package version 1.03.",
-  "http://CRAN.R-project.org/package=lqmm")
-)
+  textVersion  = paste0("Geraci M (",
+                     year,
+                     "). lqmm: Linear quantile mixed models. ",
+                     vers, "http://CRAN.R-project.org/package=lqmm", ".")
+	)
+  )
 
 citEntry(
 	entry = "Article",

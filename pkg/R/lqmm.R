@@ -21,7 +21,7 @@
 ##########################################################################################
 # Functions from contributed R packages (CRAN)
 
-"is.positive.definite" <- function (m, tol, method = c("eigen", "chol")) 
+"is.positive.definite" <- function(m, tol, method = c("eigen", "chol")) 
 {
 # source package `corpcor' version 1.6.0 (Juliane Schaefer, Rainer Opgen-Rhein, Verena Zuber, A. Pedro Duarte Silva and Korbinian Strimmer)
 
@@ -296,11 +296,12 @@ N <- nrow(x)
 if(is.null(p)) stop("x must be a matrix")
 if(missing(theta)) theta <- lm.fit(as.matrix(x), y)$coefficients
 if(is.null(control$loop_step)) control$loop_step <- sd(as.numeric(y))
+if(length(iota) > 1) {iota <- iota[1]; warning("Length of iota is greater than 1. Only first value taken")}
 wx <- x*weights
 wy <- y*weights
 
 fit <- .C("gradientSd_s", theta = as.double(theta), as.double(wx), as.double(wy), as.single(iota), as.integer(N), as.integer(p),
-          as.double(control$loop_step), as.double(control$beta), as.double(control$gamma), as.integer(control$reset_step), as.double(control$loop_tol_ll), as.double(control$loop_tol_theta), as.integer(control$check_theta), as.integer(control$loop_max_iter), as.integer(control$verbose), CONVERGE = integer(1), double(p), optimum = double(1), PACKAGE = "lqmm")
+          as.double(control$loop_step), as.double(control$beta), as.double(control$gamma), as.integer(control$reset_step), as.double(control$loop_tol_ll), as.double(control$loop_tol_theta), as.integer(control$check_theta), as.integer(control$loop_max_iter), as.integer(control$verbose), CONVERGE = integer(1), grad = double(p), optimum = double(1), PACKAGE = "lqmm")
 
 fit$residuals <- y - x%*%matrix(fit$theta)
 fit$scale <- weighted.mean(fit$residuals * (iota - (fit$residuals < 0)), weights)
@@ -309,7 +310,7 @@ OPTIMIZATION <- list(loop = fit$CONVERGE)
 
 errorHandling(OPTIMIZATION$loop, "low", control$loop_max_iter, control$loop_tol_ll, "lqm")
 
-list(theta = fit$theta, scale = fit$scale, logLik = fit$logLik, opt = OPTIMIZATION)
+list(theta = fit$theta, scale = fit$scale, gradient = fit$grad, logLik = fit$logLik, opt = OPTIMIZATION)
 
 }
 
@@ -914,6 +915,8 @@ ans$loglik
 
 "lqmm.fit.df" <- function(theta_0, x, y, z, weights, cov_name, V, W, sigma_0, iota, group, control){
 
+if(length(iota) > 1) {iota <- iota[1]; warning("Length of iota is greater than 1. Only first value taken")}
+
 x <- as.matrix(x)
 z <- as.matrix(z)
 V <- as.matrix(V)
@@ -984,6 +987,8 @@ list(theta = theta_1, scale = sigma_1, logLik = -ans$value, opt = OPTIMIZATION)
 
 "lqmm.fit.gs" <- function(theta_0, x, y, z, weights, cov_name, V, W, sigma_0, iota, group, control){
 
+if(length(iota) > 1) {iota <- iota[1]; warning("Length of iota is greater than 1. Only first value taken")}
+
 x <- as.matrix(x)
 z <- as.matrix(z)
 V <- as.matrix(V)
@@ -1019,9 +1024,10 @@ ans <- .C("gradientSd_h", theta = as.double(theta_0), as.double(x), as.double(y)
 		as.double(sigma_0), as.single(iota), as.integer(p), as.integer(q), as.integer(m), as.integer(M), as.integer(N),	as.integer(Kq), as.integer(minn-1),
 		as.integer(maxn), as.double(control$LP_step), as.double(control$beta), as.double(control$gamma), as.integer(control$reset_step),
 		as.double(control$LP_tol_ll), as.double(control$LP_tol_theta), as.integer(control$check_theta), as.integer(control$LP_max_iter),
-		as.integer(control$verbose), low_loop = integer(1), double(1), double(p + m), opt_val = double(1), PACKAGE = "lqmm")
+		as.integer(control$verbose), low_loop = integer(1), double(1), grad = double(p + m), opt_val = double(1), PACKAGE = "lqmm")
 
 theta_1 <- ans$theta
+grad <- ans$grad
 
 opt_s <- optimize(f = loglik.s, interval = c(.Machine$double.eps, 10*sigma_0), theta = theta_1, x = x, y = y, z = z, weights = weights, Tq = Tq, V = V, W = W, iota = iota, p = p, q = q, m = m, M = M, N = N, Kq = Kq, minn = minn, maxn = maxn)
 
@@ -1046,7 +1052,7 @@ OPTIMIZATION <- list(low_loop = ans$low_loop, upp_loop = upp_loop)
 errorHandling(OPTIMIZATION$low_loop, "low", control$LP_max_iter, control$LP_tol_ll, "lqmm")
 errorHandling(OPTIMIZATION$upp_loop, "upp", control$UP_max_iter, control$UP_tol, "lqmm")
 
-list(theta = theta_1, scale = sigma_1, logLik = -ans$opt_val, opt = OPTIMIZATION)
+list(theta = theta_1, scale = sigma_1, gradient = grad, logLik = -ans$opt_val, opt = OPTIMIZATION)
 
 }
 
@@ -1582,7 +1588,7 @@ coln <- c("Value", "Std. Error", "lower bound", "upper bound", "Pr(>|t|)")
 	newF <- update.formula(as.formula(object$call[['fixed']]), as.formula(. ~ 1))
 	FITNULL <- update(object, fixed = as.formula(newF), evaluate = TRUE)
     LR <- -2*(logLik(FITNULL) - object$logLik);
-    LR[LR < 0] <- 0;
+    if(any(LR < 0)) {LR[LR < 0] <- 0; warning("Negative LR test (set to zero).")};
     LRp <- 1 - pchisq(LR, df = ddf);
     names(LR) <- iota;
     attr(LR, "pvalue") <- LRp;

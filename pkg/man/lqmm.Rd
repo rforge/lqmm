@@ -69,25 +69,26 @@ logical flag. If FALSE the function returns a list of arguments to be passed to 
 
 
 \details{
-The function computes an estimate on the iota-th quantile function of the response, conditional on the covariates, as specified by the \code{formula} argument, and on random effects, as specified by the \code{random} argument. The quantile predictor is assumed to be linear. The function maximizes the (log)likelihood of the Laplace regression proposed by Geraci and Bottai (2007). The likelihood is numerically integrated via Gaussian quadrature techniques. The optimization algorithm is based on a Nelder-Mead algorithm (\code{control = list(method = "df")}) via \code{\link{optim}}. An alternative optimization algorithm is based on the gradient of the Laplace log--likelihood (\code{control = list(method = "gs")}) (Bottai, Orsini and Geraci, 2011). The scale parameter is optimized in a refinement step via \code{\link{optimize}}.
+The function computes an estimate on the iota-th quantile function of the response, conditional on the covariates, as specified by the \code{formula} argument, and on random effects, as specified by the \code{random} argument. The quantile predictor is assumed to be linear. The function maximizes the (log)likelihood of the Laplace regression proposed by Geraci and Bottai (2013). The likelihood is numerically integrated via Gaussian quadrature techniques. The optimization algorithm is based on the gradient of the Laplace log--likelihood (\code{control = list(method = "gs")}). An alternative optimization algorithm is based on a Nelder-Mead algorithm (\code{control = list(method = "df")}) via \code{\link{optim}}. The scale parameter is optimized in a refinement step via \code{\link{optimize}}.
 
 Quadrature approaches include Gauss-Hermite (\code{type = "normal"}) and Gauss-Laguerre (\code{type = "robust"}) quadrature. The argument \code{rule} takes one of the following: 1 (product rule quadrature), 2 (sparse grid quadrature), 3 (nested quadrature rule - only for \code{type = "normal"}), 4 (quadrature rule with the smallest number of nodes between rules 1 or 2). Rules 2 and 3 have not yet been tested extensively.
 
 Different standard classes of positive--definite matrices for the random effects can be specified: \code{pdSymm} general positive--definite matrix, with no additional structure; \code{pdDiag} diagonal; \code{pdIdent} multiple of an identity; \code{pdCompSymm} compound symmetry structure (constant diagonal and constant off--diagonal elements).
 
-Weights are given to clusters, therefore it is expected that these are constant within cluster. When the weights are specified in the main call, then the first value by \code{group} in the vector \code{weights} will be replicated for the same length of each group. To bypass, use \code{\link{lqmm.fit.gs}, \link{lqmm.fit.df}} directly.
+Weights are given to clusters, therefore it is expected that these are constant within cluster. When the weights are specified in the main call, then the first value by \code{group} in the vector \code{weights} will be replicated for the same length of each group. Alternatively, different weights within the same cluster can be introduced with a direct call to \code{\link{lqmm.fit.gs} or \link{lqmm.fit.df}}.
 }
 
 \value{
 \code{lqmm} returns an object of \code{\link{class}} \code{lqmm}.
 
-The function \code{summary} is used to obtain and print a summary of the results. The generic accessor functions \code{coefficients}, \code{predict} and \code{residuals} extract various useful features of the value returned by \code{lqmm}.
+The function \code{summary} is used to obtain and print a summary of the results.
 
 An object of class \code{lqmm} is a list containing the following components:
 
 \item{theta}{a vector containing fixed regression coefficients and parameters of the variance--covariance matrix of the random effects. See \code{\link{cov.lqmm}} to extract the variance--covariance of the random effects from an "lqmm" object.}
 \item{theta_x,theta_z}{partition of \code{theta}: fixed regression coefficients (\code{theta_x}) and unique variance--covariance parameters (\code{theta_z}).}
 \item{scale}{the scale parameter.}
+\item{gradient}{the gradient (\code{control = list(method = "gs")}).}
 \item{logLik}{the log--likelihood.}
 \item{opt}{details on optimization (see \code{\link{lqmm.fit.gs}} and \code{\link{lqmm.fit.df}}).}
 \item{call}{the matched call.}
@@ -116,8 +117,6 @@ An object of class \code{lqmm} is a list containing the following components:
 \item{mfArgs}{arguments for \code{\link{model.frame}} to return the full data frame.}
 }
 \references{
-Bottai M, Orsini N and Geraci M (2013). A gradient search maximization algorithm for Laplace likelihood. Unpublished manuscript.
-
 Genz A, and Keister BD (1996). Fully symmetric interpolatory rules for multiple integrals over infinite regions with Gaussian weight. Journal of Computational and Applied Mathematics, 71(2), 299--309.
 
 Geraci M and Bottai M (2007). Quantile regression for longitudinal data using the asymmetric Laplace distribution. Biostatistics 8(1), 140--154.
@@ -136,7 +135,7 @@ Updates/FAQ/news are published here \url{http://marcogeraci.wordpress.com/}. New
 }
 
 \seealso{
-\code{\link{lqm}, \link{summary.lqmm}}
+\code{\link{lqm}, \link{summary.lqmm}, \link{coef.lqmm}, \link{cov.lqmm}, \link{predict.lqmm}, \link{residuals.lqmm}}
 }
 \examples{
 
