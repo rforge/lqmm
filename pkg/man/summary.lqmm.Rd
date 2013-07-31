@@ -22,7 +22,7 @@ specifies the method used to compute standard errors. Currently, only the bootst
 significance level.
 	}
   \item{covariance}{
-logical flag. If \code{TRUE} the bootstrapped variance-covariance matrix is provided.
+logical flag. If \code{TRUE} the covariance matrix of the bootstrap estimates is provided.
 	}
   \item{\dots}{
 see \code{\link{boot.lqmm}} for additional arguments.
@@ -55,6 +55,5 @@ fitOi.lqmm <- lqmm(distance ~ age, random = ~ 1, group = Subject,
 summary(fitOi.lqmm)
 }
 
-\keyword{lqmm}
 \keyword{bootstrap}
 \keyword{standard errors}

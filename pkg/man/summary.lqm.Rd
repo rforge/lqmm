@@ -18,7 +18,7 @@ an object of \code{\link{class}} \code{lqm}}
 significance level.
 }
   \item{covariance}{
-logical flag. If \code{TRUE} the bootstrapped variance-covariance matrix is provided.
+logical flag. If \code{TRUE} the covariance matrix of the bootstrap estimates is provided.
 }
   \item{\dots}{
 see \code{\link{boot.lqm}} for additional arguments.
@@ -55,6 +55,5 @@ summary(fit.lqm, R = 50)
 
 }
 
-\keyword{lqm}
 \keyword{bootstrap}
 \keyword{standard errors}

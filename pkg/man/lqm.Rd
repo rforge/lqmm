@@ -97,4 +97,3 @@ fit.lqm
 }
 
 \keyword{quantile regression}
-\keyword{lqm}

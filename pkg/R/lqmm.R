@@ -516,6 +516,7 @@ attr(bootmat, "estimated") <- object$theta
 attr(bootmat, "R") <- R
 attr(bootmat, "seed") <- seed
 attr(bootmat, "npars") <- npars
+attr(bootmat, "indices") <- obsS
 attr(bootmat, "rdf") <- object$rdf
 
 return(bootmat)
@@ -583,35 +584,37 @@ R <- attr(B, "R")
 nn <- c("Value", "Std. Error", "lower bound", "upper bound", "Pr(>|t|)")
 
 if(nq == 1){
-  Cov <- cov(as.matrix(B))
-  stds <- sqrt(diag(Cov))
-  tP <- 2*pt(-abs(theta/stds), R - 1)
-  lower <- theta + qt(alpha/2, R - 1)*stds
-  upper <- theta + qt(1 - alpha/2, R - 1)*stds
-  ans <- cbind(theta, stds, lower, upper, tP)
-  colnames(ans) <- nn
-}
-else {
-  Cov <- apply(B, 3, function(x) cov(as.matrix(x)))
-  if(npars == 1) Cov <- matrix(Cov, nrow = 1)
-  stds <- sqrt(apply(Cov, 2, function(x, n) diag(matrix(x, n, n, byrow = TRUE)), n = npars))
-  tP <- 2*pt(-abs(theta/stds), R - 1)
-  lower <- theta + qt(alpha/2, R - 1)*stds
-  upper <- theta + qt(1 - alpha/2, R - 1)*stds
-  ans <- vector("list", nq)
-
-  for(i in 1:nq){
-    if(npars == 1){
-    ans[[i]] <- matrix(c(theta[i], stds[i], lower[i], upper[i], tP[i]), nrow = 1);
-    rownames(ans[[i]]) <- rownames(theta)
-    colnames(ans[[i]]) <- nn;
-    } else {
-    ans[[i]] <- cbind(theta[,i], stds[,i], lower[,i], upper[,i], tP[,i])
-    rownames(ans[[i]]) <- rownames(theta)
-    colnames(ans[[i]]) <- nn;
-    }
-  }
-}
+	Cov <- cov(as.matrix(B))
+	stds <- sqrt(diag(Cov))
+	tP <- 2*pt(-abs(theta/stds), R - 1)
+	lower <- theta + qt(alpha/2, R - 1)*stds
+	upper <- theta + qt(1 - alpha/2, R - 1)*stds
+	ans <- cbind(theta, stds, lower, upper, tP)
+	colnames(ans) <- nn
+	} else {
+	Cov <- apply(B, 3, function(x) cov(as.matrix(x)))
+	if(npars == 1) Cov <- matrix(Cov, nrow = 1)
+	stds <- sqrt(apply(Cov, 2, function(x, n) diag(matrix(x, n, n, byrow = TRUE)), n = npars))
+	tP <- 2*pt(-abs(theta/stds), R - 1)
+	lower <- theta + qt(alpha/2, R - 1)*stds
+	upper <- theta + qt(1 - alpha/2, R - 1)*stds
+	ans <- vector("list", nq)
+	Cov.array <- array(NA, dim = c(npars,npars,nq))
+		for(i in 1:nq){
+			if(npars == 1){
+			ans[[i]] <- matrix(c(theta[i], stds[i], lower[i], upper[i], tP[i]), nrow = 1);
+			rownames(ans[[i]]) <- rownames(theta)
+			colnames(ans[[i]]) <- nn;
+			} else {
+			ans[[i]] <- cbind(theta[,i], stds[,i], lower[,i], upper[,i], tP[,i])
+			rownames(ans[[i]]) <- rownames(theta)
+			colnames(ans[[i]]) <- nn;
+			}
+			Cov.array[,,i] <- matrix(Cov[,i], npars, npars)
+		}
+	Cov <- Cov.array
+	dimnames(Cov) <- list(rownames(theta), rownames(theta), format(iota, digits = 4))
+	}
 
 if(covariance) object$Cov <- Cov
 object$tTable <- ans
@@ -801,7 +804,7 @@ if(rule == "product"){
 	else
 		{QUAD <- gauss.quad(n = k/2, kind = "laguerre");
 		QUAD$nodes <- c(-rev(QUAD$nodes),QUAD$nodes)}
-	QUAD$weights <- dal(QUAD$nodes, mu = 0, sigma = 1, p = 0.5, log = FALSE)
+	QUAD$weights <- dal(QUAD$nodes, mu = 0, sigma = 1, iota = 0.5, log = FALSE)
 	QUAD$nodes <- permutations(n = k, r = q, v = QUAD$nodes, set = FALSE, repeats.allowed = TRUE);
 	QUAD$weights <- apply(permutations(n = k, r = q, v = QUAD$weights, set = FALSE, repeats.allowed = TRUE), 1, prod)
 }	
@@ -810,7 +813,7 @@ if(rule == "sparse"){
 	if(odd)
 		{QUAD <- createSparseGrid(function(k) gauss.quad(n = k, kind = "laguerre"), dimension = q, k = (k - 1)/2, sym = FALSE);
 		QUAD$nodes <- rbind(-QUAD$nodes,rep(0,q),QUAD$nodes);
-		QUAD$weights <- c(QUAD$weights,dal(rep(0,q), mu = 0, sigma = 1, p = 0.5, log = FALSE)^q,QUAD$weights)}
+		QUAD$weights <- c(QUAD$weights,dal(rep(0,q), mu = 0, sigma = 1, iota = 0.5, log = FALSE)^q,QUAD$weights)}
 	else
 		{QUAD <- createSparseGrid(function(k) gauss.quad(n = k, kind = "laguerre"), dimension = q, k = k/2, sym = FALSE);
 		QUAD$nodes <- rbind(-QUAD$nodes,QUAD$nodes);
@@ -1616,17 +1619,18 @@ coln <- c("Value", "Std. Error", "lower bound", "upper bound", "Pr(>|t|)")
 		lower <- est + qt(alpha/2, R - 1)*stds
 		upper <- est + qt(1 - alpha/2, R - 1)*stds
 		ans <- vector("list", nq)
-		Cov.array <- array(NA, dim = c(object$df,object$df,nq),
-		dimnames = c(rownames(attr(B, "estimated")),rownames(attr(B, "estimated")),format(iota, digits = 4)))
+		Cov.array <- array(NA, dim = c(object$df,object$df,nq))
 		  for(i in 1:nq){
 			ans[[i]] <- cbind(est[,i], stds[,i], lower[,i], upper[,i], tP[,i]);
 			rownames(ans[[i]]) <- rownames(est)
 			colnames(ans[[i]]) <- coln;
 			ans[[i]] <- ans[[i]][c(nn,"scale"),]
 			Cov.array[,,i] <- matrix(Cov[,i], object$df, object$df)
+			}
+		Cov <- Cov.array
+		dimnames(Cov) <- list(rownames(attr(B, "estimated")), rownames(attr(B, "estimated")), format(iota, digits = 4))
 		}
 	}
-  }
 
 if(covariance) object$Cov <- Cov
 object$tTable <- ans
@@ -1766,6 +1770,7 @@ attr(bootmat, "R") <- R
 attr(bootmat, "seed") <- seed
 attr(bootmat, "nn") <- object$nn
 attr(bootmat, "npars") <- npars
+attr(bootmat, "indices") <- obsS
 attr(bootmat, "dim_theta") <- object$dim_theta
 attr(bootmat, "dim_theta_z") <- object$dim_theta_z
 
@@ -1875,90 +1880,90 @@ return(ans)
 ##########################################################################################
 # Asymmetric Laplace distribution
 
-dal <- function(x, mu = 0, sigma = 1, p = 0.5, log = FALSE) {
+dal <- function(x, mu = 0, sigma = 1, iota = 0.5, log = FALSE) {
 
 ind <- ifelse(x < mu, 1, 0)
 
-val <- p*(1-p)/sigma * exp(-(x - mu)/sigma * (p- ind))
+val <- iota*(1-iota)/sigma * exp(-(x - mu)/sigma * (iota - ind))
 
 if(log) log(val) else val
 
 }
 
-pal <- function(x, mu = 0, sigma = 1, p = 0.5) {
+pal <- function(x, mu = 0, sigma = 1, iota = 0.5) {
 
-ifelse(x < mu, p * exp( (1 - p) / sigma * (x - mu)),
+ifelse(x < mu, iota * exp( (1 - iota) / sigma * (x - mu)),
 
-1 - (1 -p) *exp(- p / sigma * (x - mu)))
+1 - (1 - iota) *exp(- iota / sigma * (x - mu)))
 
 }
 
-ral <- function(n, mu = 0, sigma = 1, p = 0.5) {
+ral <- function(n, mu = 0, sigma = 1, iota = 0.5) {
 
 u <- runif(n)
 
-x1 <- mu + sigma/(1-p) * log(u/p)
+x1 <- mu + sigma/(1-iota) * log(u/iota)
 
-x2 <- mu - sigma/p * log ((1-u) / (1-p))
+x2 <- mu - sigma/iota * log ((1-u) / (1-iota))
 
 ifelse(x1 < mu, x1, x2)
 
 }
 
-qal <- function(x, mu = 0, sigma = 1, p = 0.5) {
+qal <- function(x, mu = 0, sigma = 1, iota = 0.5) {
 
-if(x > 1 | x < 0) stop("p must be in [0,1]")
+if(x > 1 | x < 0) stop("iota must be in [0,1]")
 
-ifelse(x < p, mu + (sigma/(1-p))*log(x/p),
+ifelse(x < iota, mu + (sigma/(1-iota))*log(x/iota),
 
-mu - (sigma/p)*log((1-x)/(1-p)))
-
-}
-
-
-meanAL <- function(mu, sigma, p){
-
-mu + sigma*(1-2*p)/(p*(1-p))
+mu - (sigma/iota)*log((1-x)/(1-iota)))
 
 }
 
-varAL <- function(sigma, p) {
 
-sigma^2*(1-2*p+2*p^2)/((1-p)^2*p^2)
+meanAL <- function(mu, sigma, iota){
+
+mu + sigma*(1-2*iota)/(iota*(1-iota))
 
 }
 
-invvarAL <- function(x, p) {
+varAL <- function(sigma, iota) {
 
-sqrt(x*(p*(1-p))^2/(1-2*p+2*p^2))
+sigma^2*(1-2*iota+2*iota^2)/((1-iota)^2*iota^2)
+
+}
+
+invvarAL <- function(x, iota) {
+
+sqrt(x*(iota*(1-iota))^2/(1-2*iota+2*iota^2))
 
 }
 
 
 mleAL <- function(x){
 
-p <- 0.5
-m <- as.numeric(quantile(x, p))
+iota <- 0.5
+m <- as.numeric(quantile(x, iota))
 sigma <- 1
 
 r <- 0
 while(r < 1000){
 
-m.last <- as.numeric(quantile(x, p))
+m.last <- as.numeric(quantile(x, iota))
 res <- x - m.last
-sigma.last <- mean(res*(p - ifelse(res<0,1,0)))
+sigma.last <- mean(res*(iota - ifelse(res<0,1,0)))
 a <- mean(res*ifelse(res<=0,1,0))
-p.last <- (a + sqrt(a^2 - (mean(x) - m.last)*a))/(mean(x)-m.last)
+iota.last <- (a + sqrt(a^2 - (mean(x) - m.last)*a))/(mean(x)-m.last)
 
 dm <- abs(m-m.last)
 ds <- abs(sigma-sigma.last)
-dp <- abs(p-p.last)
+dp <- abs(iota-iota.last)
 
 if(all(c(dm,ds,dp)<0.0001)) break
-	else {m <- m.last; p <- p.last; sigma <- sigma.last}
+	else {m <- m.last; iota <- iota.last; sigma <- sigma.last}
 r <- r+1
 }
-list(m=m,sigma=sigma,p=p,r=r)
+list(m=m,sigma=sigma,iota=iota,r=r)
 }
 
 ##########################################################################################

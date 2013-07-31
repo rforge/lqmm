@@ -33,6 +33,5 @@ Marco Geraci
 \code{\link{summary.lqm}}
 }
 
-\keyword{lqm}
 \keyword{coefficients}
 

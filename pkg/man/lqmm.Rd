@@ -73,9 +73,11 @@ The function computes an estimate on the iota-th quantile function of the respon
 
 Quadrature approaches include Gauss-Hermite (\code{type = "normal"}) and Gauss-Laguerre (\code{type = "robust"}) quadrature. The argument \code{rule} takes one of the following: 1 (product rule quadrature), 2 (sparse grid quadrature), 3 (nested quadrature rule - only for \code{type = "normal"}), 4 (quadrature rule with the smallest number of nodes between rules 1 or 2). Rules 2 and 3 have not yet been tested extensively.
 
-Different standard classes of positive--definite matrices for the random effects can be specified: \code{pdSymm} general positive--definite matrix, with no additional structure; \code{pdDiag} diagonal; \code{pdIdent} multiple of an identity; \code{pdCompSymm} compound symmetry structure (constant diagonal and constant off--diagonal elements).
+Different standard types of positive--definite matrices for the random effects can be specified: \code{pdIdent} multiple of an identity; \code{pdCompSymm} compound symmetry structure (constant diagonal and constant off--diagonal elements); \code{pdDiag} diagonal; \code{pdSymm} general positive--definite matrix, with no additional structure.
 
 Weights are given to clusters, therefore it is expected that these are constant within cluster. When the weights are specified in the main call, then the first value by \code{group} in the vector \code{weights} will be replicated for the same length of each group. Alternatively, different weights within the same cluster can be introduced with a direct call to \code{\link{lqmm.fit.gs} or \link{lqmm.fit.df}}.
+
+The \code{lqmm} manual can be accessed by typing \code{browseVignettes(package = "lqmm")} and then following the PDF link.
 }
 
 \value{
@@ -96,8 +98,8 @@ An object of class \code{lqmm} is a list containing the following components:
 \item{mm}{column names of \code{mmr}.}
 \item{nobs}{the number of observations.}
 \item{dim_theta}{the number of columns in \code{mmf} and \code{mmr}.}
-\item{dim_theta_z}{the length of theta_z.}
-\item{edf}{length of theta.}
+\item{dim_theta_z}{the length of \code{theta_z}.}
+\item{edf}{length of \code{theta}.}
 \item{rdf}{the number of residual degrees of freedom.}
 \item{df}{edf + 1 (scale parameter).}
 \item{iota}{the estimated quantile(s).}
@@ -137,6 +139,7 @@ Updates/FAQ/news are published here \url{http://marcogeraci.wordpress.com/}. New
 \seealso{
 \code{\link{lqm}, \link{summary.lqmm}, \link{coef.lqmm}, \link{cov.lqmm}, \link{predict.lqmm}, \link{residuals.lqmm}}
 }
+
 \examples{
 
 # Test example
@@ -189,7 +192,4 @@ AIC(fitOs.lqmm)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{lqmm}
-\keyword{longitudinal data}
-\keyword{hierarchical data}
 \keyword{quantile regression}
