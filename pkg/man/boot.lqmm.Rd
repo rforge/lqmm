@@ -26,11 +26,11 @@ logical flag. If \code{TRUE} the estimated parameters in \code{object} are used 
 
 }
   \value{
-An object of class \code{boot.lqmm} is a data frame with \code{R} rows and \code{npars} columns containing the bootstrap estimates of \code{theta_x}, \code{theta_z}, and \code{scale}. If \code{object} contains results for multiple quantiles, \code{boot.lqmm} returns an array of dimension \code{c(R,npars,nt)}, where \code{nt} is the length of \code{iota}.
+An object of class \code{boot.lqmm} is a data frame with \code{R} rows and \code{npars} columns containing the bootstrap estimates of \code{theta_x}, \code{theta_z}, and \code{scale}. If \code{object} contains results for multiple quantiles, \code{boot.lqmm} returns an array of dimension \code{c(R,npars,nt)}, where \code{nt} is the length of \code{tau}.
 
 The elements of \code{theta_z} are labelled with \code{reStruct}. See function \code{\link{covHandling}} and the example below on how to derive the variance-covariance matrix of the random effects starting from \code{theta_z}. The following attributes are available:
 
-\item{iota}{index of the quantile(s).}
+\item{tau}{index of the quantile(s).}
 \item{estimated}{the estimated parameter as given by \code{object}.}
 \item{R}{number of bootstrap replications.}
 \item{seed}{the random number generator seed used to produce the bootstrap sample.}
@@ -60,7 +60,7 @@ data(Orthodont)
 
 # Random intercept model
 fit <- lqmm(distance ~ age, random = ~ 1, group = Subject,
-	iota = 0.5, data = Orthodont)
+	tau = 0.5, data = Orthodont)
 fit.boot <- boot.lqmm(fit)
 
 

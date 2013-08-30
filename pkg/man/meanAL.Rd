@@ -12,9 +12,9 @@ Accessory functions.
 }
 
 \usage{
-meanAL(mu, sigma, iota)
-varAL(sigma, iota)
-invvarAL(x, iota)
+meanAL(mu, sigma, tau)
+varAL(sigma, tau)
+invvarAL(x, tau)
 }
 
 \arguments{
@@ -24,7 +24,7 @@ location parameter.
   \item{sigma}{
 scale parameter.
 }
-  \item{iota}{
+  \item{tau}{
 skewness parameter.
 }
   \item{x}{
@@ -34,11 +34,11 @@ numeric value.
 
 }
 \details{
-\code{meanAL} computes the mean of an asymmetric Laplace with parameters \code{mu}, \code{sigma} and \code{iota}.
+\code{meanAL} computes the mean of an asymmetric Laplace with parameters \code{mu}, \code{sigma} and \code{tau}.
 
-\code{varAL} computes the variance of an asymmetric Laplace with parameters \code{sigma} and \code{iota}.
+\code{varAL} computes the variance of an asymmetric Laplace with parameters \code{sigma} and \code{tau}.
 
-\code{invvarAL} computes the scale parameter of an asymmetric Laplace with parameter \code{iota} and variance \code{x}.
+\code{invvarAL} computes the scale parameter of an asymmetric Laplace with parameter \code{tau} and variance \code{x}.
 }
 
 

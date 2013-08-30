@@ -43,7 +43,7 @@ data(Orthodont)
 
 # Random intercept model
 fit <- lqmm(distance ~ age, random = ~ 1, group = Subject,
-	iota = 0.5, data = Orthodont)
+	tau = 0.5, data = Orthodont)
 fit.boot <- boot.lqmm(fit)
 
 # extract fixed effects

@@ -50,7 +50,7 @@ n <- 200
 p <- 1:3/4
 test <- data.frame(x = runif(n,0,1))
 test$y <- 30 + test$x + rnorm(n)
-fit.lqm <- lqm(y ~ x, data = test, iota = p)
+fit.lqm <- lqm(y ~ x, data = test, tau = p)
 summary(fit.lqm, R = 50)
 
 }
