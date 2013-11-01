@@ -314,7 +314,7 @@ list(theta = fit$theta, scale = fit$scale, gradient = fit$grad, logLik = fit$log
 
 }
 
-"lqmControl" <- function(loop_tol_ll = 1e-5, loop_tol_theta = 1e-5, check_theta = FALSE, loop_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, loop_max_iter = 500, verbose = FALSE)
+"lqmControl" <- function(loop_tol_ll = 1e-5, loop_tol_theta = 1e-5, check_theta = FALSE, loop_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE, loop_max_iter = 1000, verbose = FALSE)
 {
 if(beta > 1 || beta < 0) stop("Beta must be a decreasing factor in (0,1)")
 if(gamma < 1) stop("Beta must be a nondecreasing factor >= 1")
@@ -1939,7 +1939,7 @@ ifelse(x1 < mu, x1, x2)
 
 qal <- function(x, mu = 0, sigma = 1, tau = 0.5) {
 
-if(x > 1 | x < 0) stop("tau must be in [0,1]")
+if(any(x > 1) | any(x < 0)) stop("tau must be in [0,1]")
 
 ifelse(x < tau, mu + (sigma/(1-tau))*log(x/tau),
 
@@ -2011,16 +2011,23 @@ F.lqm <- function(x, cn){
 
 xf <- floor(x)
 df <- x - xf
-val <- if(df < cn & x >= 1) xf - 0.5 + df/(2*cn)
-		else if(any(cn <= df & df < (1 - cn), x < 1)) xf
-			else if(df >= (1 - cn)) xf + 0.5 + (df - 1)/(2*cn)
+if(df < cn & x >= 1){
+	val <- xf - 0.5 + df/(2*cn)
+}
+if(any(cn <= df & df < (1 - cn), x < 1)){
+	val <- xf
+}
+
+if(df >= (1 - cn)){
+	val <- xf + 0.5 + (df - 1)/(2*cn)
+}
+
 return(val)
 }
 
-lqm.counts <- function (formula, data, weights = NULL, offset = NULL, contrasts = NULL, alpha = 0.5, 
-    M = 50, zeta = 1e-05, B = 0.999, cn = NULL) 
+lqm.counts <- function (formula, data, weights = NULL, offset = NULL, contrasts = NULL, tau = 0.5, M = 50, zeta = 1e-5, B = 0.999, cn = NULL, alpha = 0.05, control = list()) 
 {
-    nq <- length(alpha)
+    nq <- length(tau)
     if (nq > 1) 
         stop("One quantile at a time")
     
@@ -2042,39 +2049,54 @@ lqm.counts <- function (formula, data, weights = NULL, offset = NULL, contrasts 
     x <- model.matrix(mt, mf, contrasts)
     p <- ncol(x)
     n <- nrow(x)
-
+	term.labels <- colnames(x)
+	
     if (is.null(offset)) 
         offset <- rep(0, n)
-    control <- lqmControl()
+    if (is.null(names(control))) 
+        control <- lqmControl()
+    else {
+        control_default <- lqmControl()
+        control_names <- intersect(names(control), names(control_default))
+        control_default[control_names] <- control[control_names]
+        control <- control_default
+    }
     if (is.null(control$loop_step)) 
         control$loop_step <- sd(as.numeric(y))
-    if (p == 1) 
+    if (control$beta > 1 || control$beta < 0) 
+        stop("Beta must be a decreasing factor in (0,1)")
+    if (control$gamma < 1) 
+        stop("Beta must be a nondecreasing factor >= 1")
+	if (p == 1) 
         control$loop_tol_ll <- 0.005
-    theta <- glm.fit(x = as.matrix(x), y = y, weights = w, offset = offset, 
-        family = poisson())$coefficients
-    Z <- replicate(M, addnoise(y, centered = TRUE, B = B))
-    TZ <- apply(Z, 2, function(x, off, alpha, zeta) log(ifelse((x - 
-        alpha) > 0, x - alpha, zeta)) - off, off = offset, alpha = alpha, 
-        zeta = zeta)
-    fit <- apply(TZ, 2, function(y, x, weights, alpha, control, 
-        theta) lqm.fit.gs(theta = theta, x = x, y = y, weights = weights, 
-        tau = alpha, control = control), x = x, weights = w, 
-        alpha = alpha, control = control, theta = theta)
+    theta_0 <- glm.fit(x = as.matrix(x), y = y, weights = w, offset = offset, family = poisson())$coefficients
+    
+	# Add noise
+	Z <- replicate(M, addnoise(y, centered = FALSE, B = B))
+	# Transform Z
+    TZ <- apply(Z, 2, function(x, off, tau, zeta) log(ifelse((x - 
+        tau) > zeta, x - tau, zeta)) - off, off = offset, tau = tau, zeta = zeta)
+	# Fit linear QR on TZ
+    fit <- apply(TZ, 2, function(y, x, weights, tau, control, 
+        theta) lqm.fit.gs(theta = theta, x = x, y = y, weights = weights, tau = tau, control = control), x = x, weights = w, tau = tau, control = control, theta = theta_0)
+	# Trasform back
     yhat <- sapply(fit, function(obj, x) x %*% obj$theta, x = x)
-    eta <- yhat + offset
-    zhat <- alpha + exp(eta)
+	yhat <- as.matrix(yhat)
+    eta <- sweep(yhat, 1, offset, "+")
+    zhat <- tau + exp(eta)
+	#
     Fvec <- Vectorize(F.lqm)
     if(is.null(cn)) cn <- 0.5 * log(log(n))/sqrt(n)
     F <- apply(zhat, 2, Fvec, cn = cn)
     Fp <- apply(zhat + 1, 2, Fvec, cn = cn)
     
-    multiplier <- (alpha - (TZ <= eta))^2
+    multiplier <- (tau - (TZ <= yhat))^2
     a <- array(NA, dim = c(p, p, M))
     for (i in 1:M) a[, , i] <- t(x * multiplier[, i]) %*% x/n
     
-    multiplier <- alpha^2 + (1 - 2 * alpha) * (y <= (zhat - 1)) + 
+    multiplier <- tau^2 + (1 - 2 * tau) * (y <= (zhat - 1)) + 
         ((zhat - y) * (zhat - 1 < y & y <= zhat)) * (zhat - y - 
-            2 * alpha)
+            2 * tau)
     b <- array(NA, dim = c(p, p, M))
     for (i in 1:M) b[, , i] <- t(x * multiplier[, i]) %*% x/n
     
@@ -2085,8 +2107,8 @@ lqm.counts <- function (formula, data, weights = NULL, offset = NULL, contrasts 
         tmpInv <- try(solve(t(x * multiplier[, i]) %*% x/n), 
             silent = TRUE)
         if (class(tmpInv) != "try-error") 
-            d[, , i] <- tmpInv
-        else sel[i] <- FALSE
+            {d[, , i] <- tmpInv}
+        else {sel[i] <- FALSE}
     }
     
     dad <- 0
@@ -2098,27 +2120,121 @@ lqm.counts <- function (formula, data, weights = NULL, offset = NULL, contrasts 
     
 	m.n <- sum(sel)
     if (m.n != 0) {
-		val <- dad/(m.n^2) + (1 - 1/m.n) * dbd * 1/m.n
-		std <- sqrt(diag(val))}
-	else {
-		std <- NA
+		V <- dad/(m.n^2) + (1 - 1/m.n) * dbd * 1/m.n
+		V <- V/n
+		stds <- sqrt(diag(V))
+		} else {
+		stds <- NA
         warning("Standard error not available")
-    }
+		}
 
     est <- sapply(fit, function(x) x$theta)
-    est <- if (p == 1) 
-        mean(est)
-    else rowMeans(est)
+    est <- if (p == 1) mean(est) else rowMeans(est)
 
     qfit <- if (p == 1) {
-        alpha + exp(mean(eta[1, ]))
-    }
-    else {
-        alpha + exp(rowMeans(eta))
+        tau + exp(mean(eta[1, ]))
+    } else {
+        tau + exp(rowMeans(eta))
     }
 
-    return(list(estimate_log_scale = est, std.err = std, fitted = qfit, 
-        effective = m.n))
+	lower <- est + qt(alpha/2, n - p) * stds
+	upper <- est + qt(1 - alpha/2, n - p) * stds
+	tP <- 2 * pt(-abs(est/stds), n - p)
+
+	ans <- cbind(est, stds, lower, upper, tP)
+	colnames(ans) <- c("Value", "Std. Error", "lower bound", "upper bound", 
+        "Pr(>|t|)")
+	rownames(ans) <- names(est) <- term.labels
+	
+	fit <- list()
+	fit$call <- call
+	fit$na.action <- attr(mf, "na.action")
+	fit$contrasts <- attr(x, "contrasts")
+	fit$term.labels <- term.labels
+	fit$terms <- mt
+
+	fit$theta <- est
+	fit$tau <- tau
+	fit$nobs <- n
+	fit$M <- M
+	fit$Mn <- m.n
+	fit$rdf <- n - p
+	fit$x <- x
+	fit$y <- y
+	fit$fitted <- qfit
+	fit$offset <- offset
+	fit$Cov <- V
+	fit$tTable <- ans
+	fit$levels <- .getXlevels(mt, mf)
+	fit$InitialPar <- list(theta = theta_0)
+	fit$control <- control
+
+	class(fit) <- "lqm.counts"
+	
+    return(fit)
 }
+
+coef.lqm.counts <- function(object, ...){
+
+tau <- object$tau
+nq <- length(tau)
+ans <- object$theta
+
+if(nq == 1){
+  names(ans) <- object$term.labels
+}
+
+return(ans)
+
+}
+
+predict.lqm.counts <- function(object, newdata, na.action = na.pass, ...) 
+{
+
+tau <- object$tau
+
+	if(missing(newdata)){
+		yhat <- drop(object$x %*% object$theta)
+	}
+	else {
+		objt <- terms(object)
+		Terms <- delete.response(objt)
+		m <- model.frame(Terms, newdata, na.action = na.action, xlev = object$levels)
+		if (!is.null(cl <- attr(Terms, "dataClasses"))) .checkMFClasses(cl, m)
+		x <- model.matrix(Terms, m, contrasts.arg = object$contrasts)
+		yhat <- drop(x %*% object$theta)
+		
+	}
+
+return(yhat)
+}
+
+residuals.lqm.counts <- function(object, ...){
+
+ans <- as.numeric(object$y) - predict(object)
+return(ans)
+
+}
+
+
+print.lqm.counts <- function (x, digits = max(3, getOption("digits") - 3), ...) 
+{
+    tau <- x$tau
+    nq <- length(tau)
+    cat("Call: ")
+    dput(x$call)
+    cat("\n")
+    if (nq == 1) {
+        cat(paste("Quantile", tau, "\n"))
+        cat("\n")
+        cat("Fixed effects:\n")
+        printCoefmat(x$tTable, signif.stars = TRUE, P.values = TRUE)
+    }
+    else {
+    NULL
+	}
+}
+
+
 
 

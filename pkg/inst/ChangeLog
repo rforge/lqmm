@@ -34,12 +34,13 @@ Version 1.03 (April 30, 2013)
 
 =============================================
 
-Version 1.04 (July 31, 2013)
+Version 1.04 (November 1, 2013)
 
 - Changed license from GPL >= 3 to GPL >= 2
-- Added documentation file lqmm_manual.pdf
+- Added vignette lqmm_manual.pdf
 - Improved code and documentation
-
+- Corrected bug in lqm.counts (in previous package versions standard errors were NOT divided by sqrt(n))
+- New functions for lqm.counts objects
 
 
 
