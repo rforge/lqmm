@@ -6,18 +6,21 @@ year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
 vers <- paste("R package version", meta$Version)
 
 citEntry(
-  entry = "Manual",
-  title ="lqmm: {L}inear quantile mixed models",
+  entry = "Article",
+  title ="{L}inear quantile mixed models: The lqmm package for {L}aplace quantile regression",
   author = personList(as.person("M. Geraci")),
-  year = year,
-  note = vers,
-  url = "http://CRAN.R-project.org/package=lqmm",
-  textVersion  = paste0("Geraci M (",
-                     year,
-                     "). lqmm: Linear quantile mixed models. ",
-                     vers, " Available at http://CRAN.R-project.org/package=lqmm", ".")
-	)
-  
+  journal = "Journal of Statistical Software",
+  year = "2014",
+  volume = "0",
+  number = "0",
+  pages = "0--0",
+  url = "http://www.jstatsoft.org/",
+  textVersion  = paste(
+  "Geraci M (2014).",
+  "The lqmm package for Laplace quantile regression.",
+  "Journal of Statistical Software (in press).",
+  "URL http://www.jstatsoft.org/")
+)
  
 citEntry(
 	entry = "Article",
