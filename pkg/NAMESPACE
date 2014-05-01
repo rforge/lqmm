@@ -1,4 +1,34 @@
 useDynLib("lqmm")
-import(SparseGrid)
+import("SparseGrid")
+importFrom("stats", coef, logLik, predict, residuals)
+importFrom("nlme", ranef, VarCorr)
 
 exportPattern("^[^\\.]")
+export(ranef)
+export(VarCorr)
+
+S3method(boot, lqm)
+S3method(boot, lqmm)
+S3method(coef, lqm)
+S3method(coef, lqmm)
+S3method(extractBoot, boot.lqmm)
+S3method(logLik, lqm)
+S3method(logLik, lqmm)
+S3method(predict, lqm)
+S3method(predict, lqmm)
+S3method(print, lqm)
+S3method(print, lqmm)
+S3method(print, summary.lqm)
+S3method(print, summary.lqmm)
+S3method(ranef, lqmm)
+S3method(residuals, lqm)
+S3method(residuals, lqmm)
+S3method(summary, lqm)
+S3method(summary, lqmm)
+S3method(summary, boot.lqm)
+S3method(summary, boot.lqmm)
+S3method(VarCorr, lqmm)
+
+
+
+

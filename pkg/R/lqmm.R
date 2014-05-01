@@ -2,7 +2,7 @@
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 3 of the License or
+#  the Free Software Foundation; either version 2 of the License or
 #  any later version.
 #
 #  This program is distributed without any warranty,
@@ -17,6 +17,11 @@
 		packageDescription(pkg)$Version, pkg))
 }
 
+##########################################################################################
+# New generics
+
+boot <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE) UseMethod("boot")
+extractBoot <- function(object, which = "fixed") UseMethod("extractBoot")
 
 ##########################################################################################
 # Functions from contributed R packages (CRAN)
@@ -463,7 +468,7 @@ return(ans)
 
 }
 
-"boot.lqm" <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
+boot.lqm <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
 
 set.seed(seed)
 tau <- object$tau
@@ -725,16 +730,6 @@ attr(ans, "df") <- tdf
 attr(ans, "class") <- "logLik"
 
 return(ans)
-}
-
-AIC.lqm <- function(object, ..., k = 2){
-
-ll <- logLik(object)
-tdf <- attr(ll, "df")
-
-ans <- k*tdf - 2*as.numeric(ll)
-return(ans)
-
 }
 
 
@@ -1349,17 +1344,17 @@ covHandling <- function(theta, n, cov_name, quad_type){
 return(sigma)	
 }
 
-cov.lqmm <- function(object, ...){
+VarCorr.lqmm <- function(x, sigma = NULL, rdig = NULL){
 
-tau <- object$tau
+tau <- x$tau
 nq <- length(tau)
 
-theta_z <- object$theta_z
-dim_theta <- object$dim_theta
+theta_z <- x$theta_z
+dim_theta <- x$dim_theta
 q <- dim_theta[2]
-cov_name <- object$cov_name
-type <- object$type
-mm <- object$mm
+cov_name <- x$cov_name
+type <- x$type
+mm <- x$mm
 
 	if(nq == 1){
 		sigma <- covHandling(theta = theta_z, n = q, cov_name = cov_name, quad_type = type);
@@ -1392,7 +1387,7 @@ nq <- length(tau)
 if(nq == 1){
   theta_x <- x$theta_x
   names(theta_x) <- x$nn
-  sigma <- cov.lqmm(x)
+  sigma <- VarCorr(x)
   psi <- varAL(x$scale, tau)
 
   cat("Call: ")
@@ -1420,7 +1415,7 @@ if(nq == 1){
   rownames(theta_x) <- x$nn
   Scale <- sapply(x[1:nq], function(z) z$scale)
   psi <- varAL(sigma = Scale, tau = tau)
-  sigma <- cov.lqmm(x)
+  sigma <- VarCorr(x)
   ll <- sapply(x[1:nq], function(z) z$logLik)
 
   cat("Call: ")
@@ -1466,7 +1461,7 @@ return(ans)
 }
 
 
-raneff.lqmm <- function(object){
+ranef.lqmm <- function(object, ...){
 
 tau <- object$tau
 nq <- length(tau)
@@ -1475,7 +1470,7 @@ M <- object$ngroups
 BLPu <- vector("list", M)
 q <- object$dim_theta[2]
 mmr.l <- split(object$mmr, group)
-sigma <- cov.lqmm(object)
+sigma <- VarCorr(object)
 cov_name <- object$cov_name
 
 if(cov_name %in% c("pdIdent","pdDiag")){
@@ -1532,7 +1527,7 @@ if(nq == 1){
 }
 
 if(level == 1){
-  RE <- raneff.lqmm(object);
+  RE <- ranef(object);
   mmr.l <- split(object$mmr, group)
   if(nq == 1){
     RE.l <- split(RE, unique(group));
@@ -1579,16 +1574,6 @@ attr(ans, "nobs") <- object$nobs
 attr(ans, "df") <- tdf
 attr(ans, "class") <- "logLik"
 
-return(ans)
-}
-
-
-AIC.lqmm <- function(object, ..., k = 2){
-
-ll <- logLik(object)
-tdf <- attr(ll, "df")
-
-ans <- k*tdf - 2*as.numeric(ll)
 return(ans)
 }
 
@@ -1700,7 +1685,6 @@ cat("AIC:\n")
   )
 }
 
-
 boot.lqmm <- function(object, R = 50, seed = round(runif(1, 1, 10000)), startQR = FALSE){
 
 if(startQR) warning("Standard errors may be underestimated when 'startQR = TRUE'")
@@ -1806,7 +1790,7 @@ return(bootmat)
 }
 
 
-extractBoot.lqmm <- function(object, which = "fixed"){
+extractBoot.boot.lqmm <- function(object, which = "fixed"){
 
 tau <- attr(object, "tau")
 nq <- length(tau)

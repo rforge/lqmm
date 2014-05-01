@@ -31,7 +31,7 @@ a matrix of residuals.
 }
 
 \references{
-Geraci M and Bottai M (2013). Linear quantile mixed models. Statistics and Computing, doi: 10.1007/s11222-013-9381-9.
+Geraci M and Bottai M (2014). Linear quantile mixed models. Statistics and Computing, 24(3), 461--479. doi: 10.1007/s11222-013-9381-9.
 }
 
 \author{
@@ -41,7 +41,7 @@ Marco Geraci}
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{lqmm}}, \code{\link{predict.lqmm}}, \code{\link{coef.lqmm}}, \code{\link{raneff.lqmm}},
+\code{\link{lqmm}}, \code{\link{predict.lqmm}}, \code{\link{coef.lqmm}}, \code{\link{ranef.lqmm}},
 }
 
 \keyword{residuals}

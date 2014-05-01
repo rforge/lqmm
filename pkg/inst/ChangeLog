@@ -42,6 +42,17 @@ Version 1.04 (November 1, 2013)
 - Corrected bug in lqm.counts (in previous package versions standard errors were NOT divided by sqrt(n))
 - New functions for lqm.counts objects
 
+=============================================
+
+Version 1.5 (May 1, 2014)
+
+- Changed versioning
+- S3 methods registered
+- Introduced new generic functions boot, extractBoot
+- Function raneff.lqmm renamed ranef.lqmm
+- Function cov.lqmm renamed VarCorr.lqmm
+- Imported nlme generic ranef and VarCorr
+
 
 
 

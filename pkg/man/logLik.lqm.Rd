@@ -29,7 +29,7 @@ Marco Geraci
 
 \seealso{
 \code{\link{lqm}}
-\code{\link{AIC.lqm}}
+\code{\link{AIC}}
 }
 
-\keyword{AIC}
+\keyword{models}

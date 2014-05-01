@@ -5,7 +5,7 @@
 Linear Quantile Mixed Models Fitting by Gradient Search
 }
 \description{
-This function controls the arguments to be passed to routines written in C for LQMM estimation. The optimization algorithm is based on the gradient of the Laplace log--likelihood (Bottai, Orsini and Geraci, 2011; Geraci and Bottai, 2011).
+This function controls the arguments to be passed to routines written in C for LQMM estimation. The optimization algorithm is based on the gradient of the Laplace log--likelihood (Bottai, Orsini and Geraci, 2014; Geraci and Bottai, 2014).
 }
 \usage{
 lqmm.fit.gs(theta_0, x, y, z, weights, cov_name, V, W, sigma_0, tau,
@@ -61,7 +61,7 @@ NOTE: the data should be ordered by \code{group} when passed to \code{lqmm.fit.g
 \value{
 An object of class "list" containing the following components:
 
-\item{theta}{a vector of coefficients, including the "raw" variance--covariance parameters (see \code{\link{cov.lqmm}}).}
+\item{theta}{a vector of coefficients, including the "raw" variance--covariance parameters (see \code{\link{VarCorr.lqmm}}).}
 \item{scale}{the scale parameter.}
 \item{gradient}{the gradient.}
 \item{logLik}{the log--likelihood.}
@@ -69,9 +69,9 @@ An object of class "list" containing the following components:
 }
 
 \references{
-Bottai M, Orsini N and Geraci M (2011). A Gradient Search Maximization Algorithm for Laplace Likelihood. Unpublished manuscript.
+Bottai M, Orsini N, Geraci M. (2014). A gradient search maximization algorithm for the asymmetric Laplace likelihood, Journal of Statistical Computation and Simulation (in press).
 
-Geraci M and Bottai M (1 June 2011). Linear Quantile Mixed Models. Unpublished manuscript.
+Geraci M and Bottai M (2014). Linear quantile mixed models. Statistics and Computing, 24(3), 461--479.
 }
 \author{
 Marco Geraci}

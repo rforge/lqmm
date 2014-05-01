@@ -35,7 +35,7 @@ Marco Geraci
 
 
 \seealso{
-\code{\link{cov.lqmm}}
+\code{\link{VarCorr.lqmm}}
 }
 \keyword{covariance}
 

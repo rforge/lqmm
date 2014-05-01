@@ -1,14 +1,16 @@
-\name{extractBoot.lqmm}
-\alias{extractBoot.lqmm}
+\name{extractBoot}
+\alias{extractBoot.boot.lqmm}
+\alias{extractBoot}
 
 \title{
 Extract Fixed and Random Bootstrapped Parameters
 }
 \description{
-This function extracts the fixed and random components of bootstrapped estimates of an \code{lqmm} object.
+This generic function extracts the fixed and random components of bootstrapped estimates of an \code{lqmm} object.
 }
 \usage{
-extractBoot.lqmm(object, which = "fixed")
+extractBoot(object, which = "fixed")
+\method{extractBoot}{boot.lqmm}(object, which = "fixed")
 }
 
 \arguments{
@@ -44,10 +46,10 @@ data(Orthodont)
 # Random intercept model
 fit <- lqmm(distance ~ age, random = ~ 1, group = Subject,
 	tau = 0.5, data = Orthodont)
-fit.boot <- boot.lqmm(fit)
+fit.boot <- boot(fit)
 
 # extract fixed effects
-B <- extractBoot.lqmm(fit.boot, "fixed")
+B <- extractBoot(fit.boot, which = "fixed")
 
 # covariance matrix estimated fixed parameters
 cov(B)

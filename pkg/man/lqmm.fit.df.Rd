@@ -62,7 +62,7 @@ NOTE: the data should be ordered by \code{group} when passed to \code{lqmm.fit.d
 \value{
 An object of class "list" containing the following components:
 
-\item{theta}{a vector of coefficients, including the "raw" variance--covariance parameters (see \code{\link{cov.lqmm}}).}
+\item{theta}{a vector of coefficients, including the "raw" variance--covariance parameters (see \code{\link{VarCorr.lqmm}}).}
 \item{scale}{the scale parameter.}
 \item{logLik}{the log--likelihood.}
 \item{opt}{number of iterations when the estimation algorithm stopped for lower (theta) and upper (scale) loop.}.

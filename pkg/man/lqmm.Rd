@@ -69,7 +69,7 @@ logical flag. If FALSE the function returns a list of arguments to be passed to 
 
 
 \details{
-The function computes an estimate on the tau-th quantile function of the response, conditional on the covariates, as specified by the \code{formula} argument, and on random effects, as specified by the \code{random} argument. The quantile predictor is assumed to be linear. The function maximizes the (log)likelihood of the Laplace regression proposed by Geraci and Bottai (2013). The likelihood is numerically integrated via Gaussian quadrature techniques. The optimization algorithm is based on the gradient of the Laplace log--likelihood (\code{control = list(method = "gs")}). An alternative optimization algorithm is based on a Nelder-Mead algorithm (\code{control = list(method = "df")}) via \code{\link{optim}}. The scale parameter is optimized in a refinement step via \code{\link{optimize}}.
+The function computes an estimate on the tau-th quantile function of the response, conditional on the covariates, as specified by the \code{formula} argument, and on random effects, as specified by the \code{random} argument. The quantile predictor is assumed to be linear. The function maximizes the (log)likelihood of the Laplace regression proposed by Geraci and Bottai (2014). The likelihood is numerically integrated via Gaussian quadrature techniques. The optimization algorithm is based on the gradient of the Laplace log--likelihood (\code{control = list(method = "gs")}). An alternative optimization algorithm is based on a Nelder-Mead algorithm (\code{control = list(method = "df")}) via \code{\link{optim}}. The scale parameter is optimized in a refinement step via \code{\link{optimize}}.
 
 Quadrature approaches include Gauss-Hermite (\code{type = "normal"}) and Gauss-Laguerre (\code{type = "robust"}) quadrature. The argument \code{rule} takes one of the following: 1 (product rule quadrature), 2 (sparse grid quadrature), 3 (nested quadrature rule - only for \code{type = "normal"}), 4 (quadrature rule with the smallest number of nodes between rules 1 or 2). Rules 2 and 3 have not yet been tested extensively.
 
@@ -77,7 +77,7 @@ Different standard types of positive--definite matrices for the random effects c
 
 Weights are given to clusters, therefore it is expected that these are constant within cluster. When the weights are specified in the main call, then the first value by \code{group} in the vector \code{weights} will be replicated for the same length of each group. Alternatively, different weights within the same cluster can be introduced with a direct call to \code{\link{lqmm.fit.gs} or \link{lqmm.fit.df}}.
 
-The \code{lqmm} manual can be accessed by typing \code{browseVignettes(package = "lqmm")} and then following the PDF link.
+The \code{lqmm} vignette can be accessed by typing \code{help(package = "lqmm")} and then following the link 'User guides, package vignettes and other documentation'.
 }
 
 \value{
@@ -87,7 +87,7 @@ The function \code{summary} is used to obtain and print a summary of the results
 
 An object of class \code{lqmm} is a list containing the following components:
 
-\item{theta}{a vector containing fixed regression coefficients and parameters of the variance--covariance matrix of the random effects. See \code{\link{cov.lqmm}} to extract the variance--covariance of the random effects from an "lqmm" object.}
+\item{theta}{a vector containing fixed regression coefficients and parameters of the variance--covariance matrix of the random effects. See \code{\link{VarCorr.lqmm}} to extract the variance--covariance of the random effects from an "lqmm" object.}
 \item{theta_x,theta_z}{partition of \code{theta}: fixed regression coefficients (\code{theta_x}) and unique variance--covariance parameters (\code{theta_z}).}
 \item{scale}{the scale parameter.}
 \item{gradient}{the gradient (\code{control = list(method = "gs")}).}
@@ -118,12 +118,13 @@ An object of class \code{lqmm} is a list containing the following components:
 \item{cov_name}{class of variance-covariance matrix for the random effects.}
 \item{mfArgs}{arguments for \code{\link{model.frame}} to return the full data frame.}
 }
+
 \references{
 Genz A, and Keister BD (1996). Fully symmetric interpolatory rules for multiple integrals over infinite regions with Gaussian weight. Journal of Computational and Applied Mathematics, 71(2), 299--309.
 
 Geraci M and Bottai M (2007). Quantile regression for longitudinal data using the asymmetric Laplace distribution. Biostatistics 8(1), 140--154.
 
-Geraci M and Bottai M (2013). Linear quantile mixed models. Statistics and Computing, doi: 10.1007/s11222-013-9381-9.
+Geraci M and Bottai M (2014). Linear quantile mixed models. Statistics and Computing, 24(3), 461--479. doi: 10.1007/s11222-013-9381-9.
 
 Heiss F, and Winschel V (2008). Likelihood approximation by numerical integration on sparse grids. Journal of Econometrics, 144(1), 62--80.
 }
@@ -137,7 +138,7 @@ Updates/FAQ/news are published here \url{http://marcogeraci.wordpress.com/}. New
 }
 
 \seealso{
-\code{\link{lqm}, \link{summary.lqmm}, \link{coef.lqmm}, \link{cov.lqmm}, \link{predict.lqmm}, \link{residuals.lqmm}}
+\code{\link{lqm}, \link{summary.lqmm}, \link{coef.lqmm}, \link{VarCorr.lqmm}, \link{predict.lqmm}, \link{residuals.lqmm}}
 }
 
 \examples{
@@ -185,9 +186,9 @@ fitOs.lqmm <- lqmm(distance ~ age, random = ~ age, group = Subject,
 	tau = c(0.1,0.5,0.9), cov = "pdDiag", data = Orthodont)
 
 # Extract estimates
-cov.lqmm(fitOs.lqmm)
+VarCorr(fitOs.lqmm)
 coef(fitOs.lqmm)
-raneff.lqmm(fitOs.lqmm)
+ranef(fitOs.lqmm)
 
 # AIC
 AIC(fitOi.lqmm)
