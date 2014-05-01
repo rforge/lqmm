@@ -16,7 +16,7 @@ citEntry(entry = "Article",
   url          = "http://www.jstatsoft.org/v57/i13/",
 
   textVersion  =
-  paste("Marco Geraci (2014).",
+  paste("Geraci M (2014).",
         "Linear Quantile Mixed Models: The lqmm Package for Laplace Quantile Regression.",
         "Journal of Statistical Software, 57(13), 1-29.",
         "URL http://www.jstatsoft.org/v57/i13/.")
@@ -24,7 +24,7 @@ citEntry(entry = "Article",
  
 citEntry(
 	entry = "Article",
- 	author = personList(as.person("M. Geraci"),as.person("M. Bottai")),
+ 	author = personList(as.person("Marco Geraci"),as.person("Matteo Bottai")),
 	title = "Linear quantile mixed models",
  	journal = "Statistics and Computing",
 	volume = "24",
