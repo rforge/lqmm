@@ -13,7 +13,7 @@ Fit quantile regression models for independent and hierarchical data
 Package: \tab lqmm\cr
 Type: \tab Package\cr
 Version: \tab 1.5.1\cr
-Date: \tab 2014-12-10\cr
+Date: \tab 2014-12-12\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
