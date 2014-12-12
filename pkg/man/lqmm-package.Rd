@@ -12,8 +12,8 @@ Fit quantile regression models for independent and hierarchical data
 \tabular{ll}{
 Package: \tab lqmm\cr
 Type: \tab Package\cr
-Version: \tab 1.5\cr
-Date: \tab 2014-05-01\cr
+Version: \tab 1.5.1\cr
+Date: \tab 2014-12-10\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -22,7 +22,7 @@ LazyLoad: \tab yes\cr
 \author{
 Marco Geraci
 
-Maintainer: Marco Geraci <m.geraci@ucl.ac.uk>
+Maintainer: Marco Geraci <geraci@mailbox.sc.edu>
 }
 
 \references{

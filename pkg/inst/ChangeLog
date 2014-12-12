@@ -53,6 +53,14 @@ Version 1.5 (May 1, 2014)
 - Function cov.lqmm renamed VarCorr.lqmm
 - Imported nlme generic ranef and VarCorr
 
+=============================================
+
+Version 1.5.1 (December 10, 2014)
+
+- Changed maintainer's email address
+- Corrected bug in qal
+- Added constraint on tau in asymmetric Laplace distribution functions
+- Added warning when user defines sigma < 0 in asymmetric Laplace distribution functions
 
 
 

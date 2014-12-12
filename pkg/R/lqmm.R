@@ -1893,6 +1893,12 @@ return(ans)
 
 dal <- function(x, mu = 0, sigma = 1, tau = 0.5, log = FALSE) {
 
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
+
 ind <- ifelse(x < mu, 1, 0)
 
 val <- tau*(1-tau)/sigma * exp(-(x - mu)/sigma * (tau - ind))
@@ -1903,6 +1909,12 @@ if(log) log(val) else val
 
 pal <- function(x, mu = 0, sigma = 1, tau = 0.5) {
 
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
+
 ifelse(x < mu, tau * exp( (1 - tau) / sigma * (x - mu)),
 
 1 - (1 - tau) *exp(- tau / sigma * (x - mu)))
@@ -1910,6 +1922,12 @@ ifelse(x < mu, tau * exp( (1 - tau) / sigma * (x - mu)),
 }
 
 ral <- function(n, mu = 0, sigma = 1, tau = 0.5) {
+
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
 
 u <- runif(n)
 
@@ -1923,7 +1941,13 @@ ifelse(x1 < mu, x1, x2)
 
 qal <- function(x, mu = 0, sigma = 1, tau = 0.5) {
 
-if(any(x > 1) | any(x < 0)) stop("tau must be in [0,1]")
+if (any(x > 1) | any(x < 0)) stop("x must be in [0,1]")
+
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
 
 ifelse(x < tau, mu + (sigma/(1-tau))*log(x/tau),
 
@@ -1931,8 +1955,13 @@ mu - (sigma/tau)*log((1-x)/(1-tau)))
 
 }
 
-
 meanAL <- function(mu, sigma, tau){
+
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
 
 mu + sigma*(1-2*tau)/(tau*(1-tau))
 
@@ -1940,11 +1969,22 @@ mu + sigma*(1-2*tau)/(tau*(1-tau))
 
 varAL <- function(sigma, tau) {
 
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
+if(sigma < 0) warning("Scale parameter 'sigma' is negative")
+
 sigma^2*(1-2*tau+2*tau^2)/((1-tau)^2*tau^2)
 
 }
 
 invvarAL <- function(x, tau) {
+
+eps <- .Machine$double.eps^(2/3)
+if(any(tau > 1) | any(tau < 0)) stop("Parameter 'tau' must be in [0,1]")
+if (tau == 0) tau <- eps
+if (tau == 1) tau <- 1 - eps
 
 sqrt(x*(tau*(1-tau))^2/(1-2*tau+2*tau^2))
 
