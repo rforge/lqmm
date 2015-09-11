@@ -59,7 +59,7 @@ list of control parameters of the fitting process. See \code{\link{lqmControl}}.
 \details{A linear quantile regression model if fitted to the log--transformed response. Additional tranformation functions will be implemented. The notation used here follows closely that of Machado and Santos Silva (2005).}
 
 \value{
-an object of class "list" containing the following components
+an object of class "lqm.counts" containing the following components
 
 \item{tau}{the estimated quantile.}
 \item{theta}{regression quantile (on the log--scale).}

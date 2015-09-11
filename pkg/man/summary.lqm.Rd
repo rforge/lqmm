@@ -7,13 +7,15 @@
 Summary method for class \code{lqm}.}
 
 \usage{
-\method{summary}{lqm}(object, alpha = 0.05, covariance = FALSE, ...)
+\method{summary}{lqm}(object, method = "boot", alpha = 0.05, covariance = FALSE, ...)
 }
 
 \arguments{
   \item{object}{
 an object of \code{\link{class}} \code{lqm}}
 
+  \item{method}{
+specifies the method used to compute standard errors: "boot" for bootstrap (default), "nid" for large sample approximations under \emph{nid} assumptions.}
   \item{alpha}{
 significance level.
 }

@@ -2,10 +2,14 @@
 \title{Internal lqmm objects}
 \alias{.First.lib}
 \alias{.Last.lib}
+\alias{bandwidth.rq}
 \alias{errorHandling}
 \alias{extractAll}
+\alias{loglik.al}
 \alias{loglik.s}
 \alias{loglik.t}
+\alias{lqmgsR}
+\alias{switch_check}
 \alias{theta.z.dim}
 \alias{createLaguerre}
 \alias{quad}

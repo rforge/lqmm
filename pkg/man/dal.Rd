@@ -39,6 +39,13 @@ logical; if \code{TRUE}, probabilities are log--transformed.
  
 }
 
+\details{
+
+The asymmetric Laplace distribution with parameters (mu, sigma, tau) has density  
+\deqn{f(x) = \tau(1-\tau)/\sigma e^{-1/(2\sigma) (\theta max(x,0) + (1 - \theta) max(-x,0))}}
+
+}
+
 \author{
 Marco Geraci
 }

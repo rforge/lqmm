@@ -8,20 +8,23 @@ Control parameters for lqm estimation
 A list of parameters for controlling the fitting process.
 }
 \usage{
-lqmControl(loop_tol_ll = 1e-5, loop_tol_theta = 1e-5, check_theta = FALSE,
-	loop_step = NULL, beta = 0.5, gamma = 1, reset_step = FALSE,
-	loop_max_iter = 1000, verbose = FALSE)
+lqmControl(method = "gs1", loop_tol_ll = 1e-5, loop_tol_theta = 1e-3,
+	check_theta = FALSE, loop_step = NULL, beta = 0.5, gamma = 1.25,
+	reset_step = FALSE, loop_max_iter = 1000, verbose = FALSE)
 }
 
 \arguments{
+  \item{method}{
+character vector that specifies which code to use for carrying out the gradient search algorithm: "gs1" (default) based on C code and "gs2" based on R code. See details.
+}
   \item{loop_tol_ll}{
-tolerance expressed as absolute change of the log-likelihood.
+tolerance expressed as relative change of the log-likelihood.
 }
   \item{loop_tol_theta}{
-tolerance expressed as absolute change of the estimates.
+tolerance expressed as relative change of the estimates.
 }
   \item{check_theta}{
-logical flag. If \code{TRUE} the algorithm performs an additional check on the change in the estimates.
+logical flag. If \code{TRUE} the algorithm performs a check on the change in the estimates in addition to the likelihood.
 }
 
   \item{loop_step}{
@@ -37,7 +40,7 @@ nondecreasing step factor for line search (>= 1).
 }
 
   \item{reset_step}{
-logical flag. If \code{TRUE} the step size is resetted to the initial value at each iteration.
+logical flag. If \code{TRUE} the step size is re-setted to the initial value at each iteration.
 }
 
   \item{loop_max_iter}{
@@ -51,6 +54,14 @@ logical flag.
 \value{
 a list of control parameters.
 
+}
+
+\details{
+The methods "gs1" and "gs2" implement the same algorithm (Bottai et al, 2015). The former is based on C code, the latter on R code. While the C code is faster, the R code seems to be more efficient in handling large datasets.
+}
+
+\references{
+Bottai M, Orsini N, Geraci M (2015). A Gradient Search Maximization Algorithm for the Asymmetric Laplace Likelihood, Journal of Statistical Computation and Simulation, 85(10), 1919-1925.
 }
 
 \author{

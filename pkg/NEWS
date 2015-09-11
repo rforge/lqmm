@@ -63,6 +63,14 @@ Version 1.5.1 (December 10, 2014)
 - Added warning when user defines sigma < 0 in asymmetric Laplace distribution functions
 
 
+=============================================
 
+Version 1.5.2 (September 15, 2015)
 
-
+- Corrected bug in predict.lqm
+- Corrected bug in varAL
+- Removed rounding of values of 'tau' from lqm and lqmm
+- New lqm routine ("gs2") more stable with larger datasets. Default is "gs1". See ?lqmControl for details
+- New function predint.lqmm to calculate prediction intervals in lqmm
+- Replaced ChangeLog with NEWS (which is more appropriate)
+- Acknowledgements: thanks to Nathan Pace for reporting bugs and other issues

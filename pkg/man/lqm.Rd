@@ -69,7 +69,7 @@ An object of class \code{lqm} is a list containing the following components:
 }
 
 \references{
-Bottai M, Orsini N, Geraci M (2014). A Gradient Search Maximization Algorithm for the Asymmetric Laplace Likelihood, Journal of Statistical Computation and Simulation. \url{http://dx.doi.org/10.1080/00949655.2014.908879}. Forthcoming.
+Bottai M, Orsini N, Geraci M (2015). A Gradient Search Maximization Algorithm for the Asymmetric Laplace Likelihood, Journal of Statistical Computation and Simulation, 85(10), 1919-1925.
 
 Koenker R and Bassett G (1978). Regression Quantiles. Econometrica 46(1), 33--50.
 }
@@ -92,7 +92,7 @@ p <- 1:3/4
 test <- data.frame(x = runif(n,0,1))
 test$y <- 30 + test$x + rnorm(n)
 fit.lqm <- lqm(y ~ x, data = test, tau = p,
-	control = list(verbose = FALSE, loop_tol = 0.001), fit = TRUE)
+	control = list(verbose = FALSE, loop_tol_ll = 1e-9), fit = TRUE)
 fit.lqm
 }
 
